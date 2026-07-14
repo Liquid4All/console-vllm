@@ -1,0 +1,39 @@
+name: Build and publish Liquid vLLM image
+
+on:
+  push:
+    tags:
+      - "v*-liquid.*"
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/liquid4all/console-vllm
+
+jobs:
+  build-and-push:
+    # Blacksmith runner: the sticky-disk Docker layer cache lets builds reuse
+    # the ~10 GB base image instead of re-pulling it every run.
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    steps:
+      - uses: actions/checkout@v4
+
+      # Auth uses the automatic GITHUB_TOKEN; no registry secrets to configure.
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: useblacksmith/setup-docker-builder@v1
+
+      - uses: useblacksmith/build-push-action@v2
+        with:
+          context: .
+          file: docker/Dockerfile.liquid
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ github.ref_name }}
+            ${{ env.IMAGE }}:latest
