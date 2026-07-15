@@ -21,11 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Logs in to Docker Hub (default registry). Add DOCKERHUB_USERNAME and
-      # DOCKERHUB_TOKEN (Read & Write access token) as repo/org secrets.
+      # Logs in to Docker Hub (default registry). DOCKERHUB_USERNAME is an
+      # Actions variable; DOCKERHUB_TOKEN (Read & Write access token) is a secret.
       - uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - uses: docker/setup-buildx-action@v3
