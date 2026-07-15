@@ -7,26 +7,26 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 env:
-  IMAGE: ghcr.io/liquid4all/console-vllm
+  # Docker Hub target. Set as an Actions *variable* (Settings → Secrets and
+  # variables → Actions → Variables), e.g. DOCKERHUB_NAMESPACE = your org.
+  IMAGE: ${{ vars.DOCKERHUB_NAMESPACE }}/console-vllm
 
 jobs:
   build-and-push:
-    # Blacksmith runner for speed. We use standard buildx (not the sticky-disk
-    # Docker cache) because the sticky-disk buildkit store corrupted the ~4 GB
-    # base layer on commit ("unexpected commit digest"). Reliability over cache.
+    # Blacksmith runner for speed; standard buildx (the sticky-disk Docker cache
+    # corrupted the large base layer on commit).
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
 
-      # Auth uses the automatic GITHUB_TOKEN; no registry secrets to configure.
+      # Logs in to Docker Hub (default registry). Add DOCKERHUB_USERNAME and
+      # DOCKERHUB_TOKEN (Read & Write access token) as repo/org secrets.
       - uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - uses: docker/setup-buildx-action@v3
 
