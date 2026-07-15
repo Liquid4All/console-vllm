@@ -9,9 +9,7 @@ permissions:
   contents: read
 
 env:
-  # Docker Hub target. Set as an Actions *variable* (Settings → Secrets and
-  # variables → Actions → Variables), e.g. DOCKERHUB_NAMESPACE = your org.
-  IMAGE: ${{ vars.DOCKERHUB_NAMESPACE }}/console-vllm
+  IMAGE: us-west1-docker.pkg.dev/liquid-registry/images/console-vllm
 
 jobs:
   build-and-push:
@@ -21,12 +19,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Logs in to Docker Hub (default registry). DOCKERHUB_USERNAME is an
-      # Actions variable; DOCKERHUB_TOKEN (Read & Write access token) is a secret.
+      # Auth to Google Artifact Registry with a service-account key.
+      # GCP_SA_KEY = the JSON key for an SA with roles/artifactregistry.writer
+      # on the 'images' repo. Username is the literal string _json_key.
       - uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: us-west1-docker.pkg.dev
+          username: _json_key
+          password: ${{ secrets.GCP_SA_KEY }}
 
       - uses: docker/setup-buildx-action@v3
 
