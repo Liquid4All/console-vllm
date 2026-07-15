@@ -462,7 +462,16 @@ class Siglip2Model(torch.nn.Module):
             ".q_proj": (".qkv_proj", "q"),
             ".k_proj": (".qkv_proj", "k"),
             ".v_proj": (".qkv_proj", "v"),
-        }
+        },
+        # Some checkpoints (e.g. ModelOpt NVFP4 exports) store the SigLIP2 tower
+        # flat under vision_tower, omitting the `vision_model.` module level this
+        # class expects. Normalize those; keys that already start with
+        # `vision_model.` don't match these prefixes and pass through unchanged.
+        orig_to_new_prefix={
+            "embeddings.": "vision_model.embeddings.",
+            "encoder.": "vision_model.encoder.",
+            "post_layernorm.": "vision_model.post_layernorm.",
+        },
     )
 
     def __init__(
