@@ -33,8 +33,14 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: .
-          file: docker/Dockerfile.liquid
+          file: docker/Dockerfile
+          target: vllm-openai
           push: true
+          build-args: |
+            VLLM_BUILD_COMMIT=${{ github.sha }}
+            VLLM_BUILD_PIPELINE=github-actions
+            VLLM_BUILD_URL=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            VLLM_IMAGE_TAG=${{ github.ref_name }}
           tags: |
             ${{ env.IMAGE }}:${{ github.ref_name }}
             ${{ env.IMAGE }}:latest
